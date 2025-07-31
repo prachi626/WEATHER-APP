@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .weather-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .weather-card-sunny {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .weather-card-cloudy {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .weather-card-rainy {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Weather icons as SVG components
+        const SunIcon = () => (
+            <svg className="w-16 h-16 text-yellow-300" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+            </svg>
+        );
+
+        const CloudIcon = () => (
+            <svg className="w-16 h-16 text-gray-200" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4.5 9.75a6 6 0 0111.573-2.226 3.75 3.75 0 014.133 4.303A4.5 4.5 0 0118 20.25H6.75a5.25 5.25 0 01-2.23-10.004 6.072 6.072 0 01-.02-.496z"/>
+            </svg>
+        );
+
+        const RainIcon = () => (
+            <svg className="w-16 h-16 text-blue-200" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4.5 9.75a6 6 0 0111.573-2.226 3.75 3.75 0 014.133 4.303A4.5 4.5 0 0118 20.25H6.75a5.25 5.25 0 01-2.23-10.004 6.072 6.072 0 01-.02-.496z"/>
+                <path d="M10.5 21l-1.5-3m4.5 3l-1.5-3m4.5 3l-1.5-3"/>
+            </svg>
+        );
+
+        const SearchIcon = () => (
+            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+        );
+
+        const LocationIcon = () => (
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+        );
+
+        // Sample weather data
+        const sampleWeatherData = {
+            "Mumbai": {
+                city: "Mumbai",
+                country: "India",
+                temperature: 32,
+                condition: "Sunny",
+                humidity: 78,
+                windSpeed: 15,
+                pressure: 1010,
+                forecast: [
+                    { day: "Today", high: 34, low: 28, condition: "Sunny" },
+                    { day: "Tomorrow", high: 33, low: 27, condition: "Cloudy" },
+                    { day: "Wednesday", high: 31, low: 26, condition: "Rainy" },
+                    { day: "Thursday", high: 35, low: 29, condition: "Sunny" },
+                    { day: "Friday", high: 32, low: 27, condition: "Cloudy" }
+                ]
+            },
+            "Delhi": {
+                city: "Delhi",
+                country: "India",
+                temperature: 38,
+                condition: "Sunny",
+                humidity: 45,
+                windSpeed: 8,
+                pressure: 1008,
+                forecast: [
+                    { day: "Today", high: 40, low: 30, condition: "Sunny" },
+                    { day: "Tomorrow", high: 39, low: 29, condition: "Sunny" },
+                    { day: "Wednesday", high: 36, low: 28, condition: "Cloudy" },
+                    { day: "Thursday", high: 41, low: 31, condition: "Sunny" },
+                    { day: "Friday", high: 37, low: 29, condition: "Cloudy" }
+                ]
+            },
+            "Bangalore": {
+                city: "Bangalore",
+                country: "India",
+                temperature: 26,
+                condition: "Cloudy",
+                humidity: 68,
+                windSpeed: 12,
+                pressure: 1012,
+                forecast: [
+                    { day: "Today", high: 28, low: 22, condition: "Cloudy" },
+                    { day: "Tomorrow", high: 27, low: 21, condition: "Rainy" },
+                    { day: "Wednesday", high: 25, low: 20, condition: "Rainy" },
+                    { day: "Thursday", high: 29, low: 23, condition: "Sunny" },
+                    { day: "Friday", high: 26, low: 21, condition: "Cloudy" }
+                ]
+            },
+            "Chennai": {
+                city: "Chennai",
+                country: "India",
+                temperature: 35,
+                condition: "Sunny",
+                humidity: 82,
+                windSpeed: 18,
+                pressure: 1009,
+                forecast: [
+                    { day: "Today", high: 37, low: 29, condition: "Sunny" },
+                    { day: "Tomorrow", high: 36, low: 28, condition: "Cloudy" },
+                    { day: "Wednesday", high: 34, low: 27, condition: "Rainy" },
+                    { day: "Thursday", high: 38, low: 30, condition: "Sunny" },
+                    { day: "Friday", high: 35, low: 28, condition: "Cloudy" }
+                ]
+            },
+            "Kolkata": {
+                city: "Kolkata",
+                country: "India",
+                temperature: 33,
+                condition: "Rainy",
+                humidity: 88,
+                windSpeed: 10,
+                pressure: 1006,
+                forecast: [
+                    { day: "Today", high: 35, low: 28, condition: "Rainy" },
+                    { day: "Tomorrow", high: 34, low: 27, condition: "Rainy" },
+                    { day: "Wednesday", high: 32, low: 26, condition: "Cloudy" },
+                    { day: "Thursday", high: 36, low: 29, condition: "Sunny" },
+                    { day: "Friday", high: 33, low: 27, condition: "Rainy" }
+                ]
+            },
+            "Hyderabad": {
+                city: "Hyderabad",
+                country: "India",
+                temperature: 31,
+                condition: "Cloudy",
+                humidity: 65,
+                windSpeed: 14,
+                pressure: 1011,
+                forecast: [
+                    { day: "Today", high: 33, low: 26, condition: "Cloudy" },
+                    { day: "Tomorrow", high: 32, low: 25, condition: "Sunny" },
+                    { day: "Wednesday", high: 30, low: 24, condition: "Rainy" },
+                    { day: "Thursday", high: 34, low: 27, condition: "Sunny" },
+                    { day: "Friday", high: 31, low: 25, condition: "Cloudy" }
+                ]
+            },
+            "Pune": {
+                city: "Pune",
+                country: "India",
+                temperature: 29,
+                condition: "Sunny",
+                humidity: 58,
+                windSpeed: 11,
+                pressure: 1013,
+                forecast: [
+                    { day: "Today", high: 31, low: 24, condition: "Sunny" },
+                    { day: "Tomorrow", high: 30, low: 23, condition: "Cloudy" },
+                    { day: "Wednesday", high: 28, low: 22, condition: "Rainy" },
+                    { day: "Thursday", high: 32, low: 25, condition: "Sunny" },
+                    { day: "Friday", high: 29, low: 23, condition: "Cloudy" }
+                ]
+            },
+            "Jaipur": {
+                city: "Jaipur",
+                country: "India",
+                temperature: 36,
+                condition: "Sunny",
+                humidity: 42,
+                windSpeed: 9,
+                pressure: 1009,
+                forecast: [
+                    { day: "Today", high: 38, low: 28, condition: "Sunny" },
+                    { day: "Tomorrow", high: 37, low: 27, condition: "Sunny" },
+                    { day: "Wednesday", high: 35, low: 26, condition: "Cloudy" },
+                    { day: "Thursday", high: 39, low: 29, condition: "Sunny" },
+                    { day: "Friday", high: 36, low: 27, condition: "Cloudy" }
+                ]
+            }
+        };
+
+        const WeatherApp = () => {
+            const [searchTerm, setSearchTerm] = useState('');
+            const [currentWeather, setCurrentWeather] = useState(sampleWeatherData["Mumbai"]);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+
+            const getWeatherIcon = (condition) => {
+                switch (condition.toLowerCase()) {
+                    case 'sunny':
+                        return <SunIcon />;
+                    case 'cloudy':
+                        return <CloudIcon />;
+                    case 'rainy':
+                        return <RainIcon />;
+                    default:
+                        return <SunIcon />;
+                }
+            };
+
+            const getWeatherCardClass = (condition) => {
+                switch (condition.toLowerCase()) {
+                    case 'sunny':
+                        return 'weather-card-sunny';
+                    case 'cloudy':
+                        return 'weather-card-cloudy';
+                    case 'rainy':
+                        return 'weather-card-rainy';
+                    default:
+                        return 'weather-card';
+                }
+            };
+
+            const handleSearch = (e) => {
+                e.preventDefault();
+                if (!searchTerm.trim()) return;
+
+                setLoading(true);
+                setError('');
+
+                // Simulate API call
+                setTimeout(() => {
+                    const cityData = sampleWeatherData[searchTerm] || 
+                                   Object.values(sampleWeatherData).find(data => 
+                                       data.city.toLowerCase().includes(searchTerm.toLowerCase())
+                                   );
+
+                    if (cityData) {
+                        setCurrentWeather(cityData);
+                        setError('');
+                    } else {
+                        setError(`Weather data not found for "${searchTerm}". Try "Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Pune", or "Jaipur".`);
+                    }
+                    setLoading(false);
+                }, 1000);
+            };
+
+            const getCurrentLocation = () => {
+                setLoading(true);
+                // Simulate getting current location
+                setTimeout(() => {
+                    setCurrentWeather(sampleWeatherData["Mumbai"]);
+                    setLoading(false);
+                }, 1000);
+            };
+
+            return (
+                <div className="min-h-screen p-4 md:p-8">
+                    <div className="max-w-4xl mx-auto">
+                        {/* Header */}
+                        <div className="text-center mb-8">
+                            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                                Weather App
+                            </h1>
+                            <p className="text-white/80 text-lg">
+                                Get real-time weather information for any city
+                            </p>
+                        </div>
+
+                        {/* Search Bar */}
+                        <div className="glass-effect rounded-2xl p-6 mb-8">
+                            <form onSubmit={handleSearch} className="flex gap-4">
+                                <div className="flex-1 relative">
+                                    <input
+                                        type="text"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        placeholder="Enter city name..."
+                                        className="w-full px-4 py-3 pl-12 bg-white/20 border border-white/30 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                    />
+                                    <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2" />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="px-6 py-3 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl text-white font-medium transition-all duration-200 disabled:opacity-50"
+                                >
+                                    {loading ? 'Searching...' : 'Search'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={getCurrentLocation}
+                                    disabled={loading}
+                                    className="px-4 py-3 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl text-white transition-all duration-200 disabled:opacity-50"
+                                >
+                                    <LocationIcon />
+                                </button>
+                            </form>
+                            {error && (
+                                <p className="text-red-300 mt-3 text-sm">{error}</p>
+                            )}
+                        </div>
+
+                        {/* Current Weather Card */}
+                        <div className={`${getWeatherCardClass(currentWeather.condition)} rounded-3xl p-8 mb-8 text-white shadow-2xl`}>
+                            <div className="flex flex-col md:flex-row items-center justify-between">
+                                <div className="text-center md:text-left mb-6 md:mb-0">
+                                    <h2 className="text-3xl font-bold mb-2">
+                                        {currentWeather.city}, {currentWeather.country}
+                                    </h2>
+                                    <p className="text-white/80 text-lg mb-4">{currentWeather.condition}</p>
+                                    <div className="text-6xl font-light mb-4">
+                                        {currentWeather.temperature}°C
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    {getWeatherIcon(currentWeather.condition)}
+                                    <p className="text-white/80 mt-2">{currentWeather.condition}</p>
+                                </div>
+                            </div>
+
+                            {/* Weather Details */}
+                            <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/20">
+                                <div className="text-center">
+                                    <p className="text-white/60 text-sm">Humidity</p>
+                                    <p className="text-xl font-semibold">{currentWeather.humidity}%</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-white/60 text-sm">Wind Speed</p>
+                                    <p className="text-xl font-semibold">{currentWeather.windSpeed} km/h</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-white/60 text-sm">Pressure</p>
+                                    <p className="text-xl font-semibold">{currentWeather.pressure} hPa</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 5-Day Forecast */}
+                        <div className="glass-effect rounded-2xl p-6">
+                            <h3 className="text-2xl font-bold text-white mb-6">5-Day Forecast</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                                {currentWeather.forecast.map((day, index) => (
+                                    <div key={index} className="bg-white/10 rounded-xl p-4 text-center text-white">
+                                        <p className="font-medium mb-2">{day.day}</p>
+                                        <div className="flex justify-center mb-2">
+                                            <div className="w-8 h-8">
+                                                {getWeatherIcon(day.condition)}
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-white/60 mb-1">{day.condition}</p>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="font-semibold">{day.high}°</span>
+                                            <span className="text-white/60">{day.low}°</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="text-center mt-8">
+                            <p className="text-white/60 text-sm">
+                                Demo Weather App • Try searching for "Mumbai", "Delhi", "Bangalore", "Chennai", or other Indian cities
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<WeatherApp />, document.getElementById('root'));
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967c71c905af2cb1',t:'MTc1Mzk1ODA3OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
