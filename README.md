@@ -21,6 +21,10 @@ This is a simple Weather Forecast web application built using **React** and **Ta
 - **OpenWeatherMap API** (or similar weather API)
 
 ---
+## 🚀 Deployment
+
+🔗 Live site: [https://famous-caramel-da5a97.netlify.app](https://famous-caramel-da5a97.netlify.app)
+
 
 ## 📂 Project Structure
 
