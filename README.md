@@ -1,16 +1,32 @@
-<p align="center">
-<img src="https://www.htmlhints.com/image/react/reactWeatherApp.png" width="100%">
-</p>
+# 🌦️ Weather App (React + Tailwind via CDN)
 
-<p align="center">
-  View Complete <a href="https://www.htmlhints.com/article/how-to-create-weather-app-using-reactjs-with-current-location-search-city/93">Installation details</a>.
- </p>
- <p align="center">
-  View <a href="https://master.d2gxbs6vwhkz68.amplifyapp.com/">Live demo</a>.
- </p>
+This is a simple Weather Forecast web application built using **React** and **Tailwind CSS** via **CDN** in a single HTML file. It displays the current weather and a 5-day forecast for selected Indian cities using a weather API.
 
-## Setup
+> ⚠️ Note: This project is built without using traditional React tooling like Vite or Create React App, due to time constraints and setup limitations. A modular, production-grade version will be developed soon.
 
-```
-npm i && npm start
-```
+---
+
+## 🚀 Features
+
+- 📍 Search by city name (Indian cities supported)
+- 🌤️ Current temperature, weather condition, and custom icons
+- 📅 5-day weather forecast with dynamic styling
+- 🎨 Responsive UI using Tailwind CSS
+- ⚛️ Built using React (via CDN) and JSX (compiled with Babel)
+
+---
+
+## 🛠️ Tech Stack
+
+- **React** via CDN
+- **ReactDOM** via CDN
+- **Babel** for in-browser JSX compilation
+- **Tailwind CSS** via CDN
+- **OpenWeatherMap API** (or similar weather API)
+
+---
+
+## 📂 Project Structure
+
+This app uses React via CDN in a single HTML file due to time constraints. It is fully functional and demonstrates understanding of React, JSX, Tailwind, and API handling. A full React-Vite version is planned.
+
