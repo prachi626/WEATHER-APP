@@ -14,7 +14,7 @@ This is a weather forecast application built using **React** (via CDN), **Tailwi
 
 Below is a full-page screenshot of the live app interface:
 
-![Weather App Screenshot](https://github.com/prachi626/WEATHER-APP/assets/1234567890abcdef/full-screenshot.png)
+<img width="1065" height="2616" alt="screenshot png" src="https://github.com/user-attachments/assets/64bc9165-7e79-4c1d-86ad-504137d2d5be" />
 
 
 > Make sure the image `full-screenshot.png` is placed in the root folder of your repo.
