@@ -18,6 +18,7 @@ Below is a full-page screenshot of the live app interface:
 
 > Make sure the image `full-screenshot.png` is placed in the root folder of your repo.
 
+
 ---
 
 ## ⚙️ Features
